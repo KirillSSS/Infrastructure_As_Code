@@ -2,65 +2,37 @@
   gather_facts: false
   hosts: [all]
   become: yes
-  vars:
-    docker_compose_version: "1.27.4"
+
   tasks:
+    - name: Apt update
+      command: sudo apt-get update
 
-    - name: Update apt cache
-      apt: update_cache=yes cache_valid_time=3600
+    - name: SET UP THE REPOSITORY
+      command: sudo apt-get -y install \
+               apt-transport-https \
+               ca-certificates \
+               curl \
+               gnupg
 
-    - name: Upgrade all apt packages
-      apt: upgrade=dist
+      - name: Add Docker’s official GPG key
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
-    - name: Install dependencies
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - software-properties-common
-        - gnupg-agent
-      
-    - name: Add an apt signing key for Docker
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
+    - name: Set up the stable repository
+      command: echo \
+               "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+               $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    - name: Add apt repository for stable version
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
-        state: present
+    - name: Apt update
+      command: sudo apt-get update
 
-    - name: Install Docker
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
-        - docker-ce
-        - docker-ce-cli 
-        - containerd.io
+      - name: INSTALL DOCKER ENGINE
+      command: sudo apt-get -y install docker-ce docker-ce-cli containerd.io
 
-    - name: Add user to docker group
-      user:
-        name: "{{ansible_user}}"
-        group: docker
+      - name: Download the current stable release of Docker Compose
+      command: sudo curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-    - name: Download docker-compose {{ docker_compose_version }}
-      get_url:
-        url : https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
-        dest: ~/docker-compose
-        mode: '+x'
+      - name: Apply executable permissions to the binary
+      command: sudo chmod +x /usr/local/bin/docker-compose
 
-    - name: Check docker-compose exists
-      stat: path=~/docker-compose
-      register: docker_compose
-
-    - name: Move docker-compose to /usr/local/bin/docker-compose
-      command: mv ~/docker-compose /usr/local/bin/docker-compose
-      when: docker_compose.stat.exists
+      - name: Docker-compose installed
+      command: sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose

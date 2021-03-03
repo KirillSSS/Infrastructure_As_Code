@@ -14,7 +14,7 @@
                curl \
                gnupg
 
-      - name: Add Docker’s official GPG key
+    - name: Add Docker’s official GPG key
       command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
     - name: Set up the stable repository
@@ -25,14 +25,14 @@
     - name: Apt update
       command: sudo apt-get update
 
-      - name: INSTALL DOCKER ENGINE
+    - name: INSTALL DOCKER ENGINE
       command: sudo apt-get -y install docker-ce docker-ce-cli containerd.io
 
-      - name: Download the current stable release of Docker Compose
+    - name: Download the current stable release of Docker Compose
       command: sudo curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-      - name: Apply executable permissions to the binary
+    - name: Apply executable permissions to the binary
       command: sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Docker-compose installed
+    - name: Docker-compose installed
       command: sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose

@@ -11,7 +11,6 @@
       command: apt -y install apt-transport-https ca-certificates curl gnupg
 
     - name: Add Docker’s official GPG key
-      warn: false
       command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg  
       
     - name: Add Docker’s official GPG key

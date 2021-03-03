@@ -32,6 +32,3 @@
 
     - name: Apply executable permissions to the binary
       command: chmod +x /usr/local/bin/docker-compose
-
-    - name: Docker-compose installed
-      command: ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
